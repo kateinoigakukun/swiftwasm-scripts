@@ -1,0 +1,3 @@
+[submodule "swiftwasm-wasi-stubs"]
+	path = swiftwasm-wasi-stubs
+	url = git@github.com:swiftwasm/swiftwasm-wasi-stubs.git

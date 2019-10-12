@@ -1,0 +1,48 @@
+variables:
+  system.debug: true
+jobs:
+- job: Test on Ubuntu
+  timeoutInMinutes: 0
+  pool:
+    vmImage: 'Ubuntu-16.04'
+  steps:
+  - script: |
+      git clone git@github.com:swiftwasm/wasi-sdk.git
+      cd wasi-sdk
+      PREFIX=/opt/wasi-sdk make build/llvm.BUILT
+      PREFIX=/opt/wasi-sdk make build/wasi-sysroot.BUILT
+
+    displayName: Build wasi-sdk
+  - script: |
+      wget -O wabt.tar.gz "https://github.com/WebAssembly/wabt/releases/download/1.0.12/wabt-1.0.12-linux.tar.gz"
+      tar xfzv wabt.tar.gz
+      mv wabt-1.0.12 wabt
+
+    workingDirectory: $(Pipeline.Workspace)
+    displayName: Download wabt
+  - script: |
+      wget -O icu.tar.xz "https://github.com/swiftwasm/icu4c-wasi/releases/download/20190421.3/icu4c-wasi.tar.xz"
+      tar xf icu.tar.xz
+
+    displayName: Download icu
+
+  - script: |
+      mkdir -p swiftwasm-scripts
+
+    displayName: Create workspace
+    workingDirectory: $(Pipeline.Workspace)/swiftwasm-scripts
+
+  - checkout: self
+    path: swiftwasm-scripts
+
+  - script: |
+      WASM_STRIP=../wabt/wasm-strip \
+      WASM_LD=/opt/wasi-sdk/bin/wasm-ld \
+      SWIFTC=../opt/swiftwasm-sdk/bin/swiftc \
+      WASI_SDK=/opt/wasi-sdk \
+      SWIFTWASM_SDK=../opt/swiftwasm-sdk \
+      ICU_LIB=../icu_out/lib \
+      EXTRA_OBJS=~/projects/swiftwasm-source/swiftwasm-resource/extra_objs \
+      ./tests/build_test.sh
+
+    workingDirectory: $(Pipeline.Workspace)/swiftwasm-scripts
