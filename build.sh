@@ -70,6 +70,7 @@ $WASM_LD \
   -L $ICU_LIB -L $swift_libs \
   -lc -lc++ -lc++abi -lswiftImageInspectionShared \
   -lswiftCore \
+  -lswiftSwiftOnoneSupport \
   -licuuc -licudata \
   --error-limit=0 \
   --no-gc-sections \
