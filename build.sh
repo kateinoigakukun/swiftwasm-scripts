@@ -58,7 +58,7 @@ done
 # Compile from swift file to object file
 
 echo "Compiling..."
-$SWIFTC -target wasm32-unknown-unknown-wasm -o $object_file -c $input
+$SWIFTC -target wasm32-unknown-unknown-wasm -O -g -sdk $sysroot -o $object_file -c $input
 
 # Link them
 echo "Linking..."
