@@ -25,6 +25,8 @@ input=$1
 object_file=$input.o
 output=${2:-"a"}
 
+sysroot=$WASI_SDK/share/sysroot
+
 # Linker input files
 fakepthread=$EXTRA_OBJS/fakepthread.o
 fakelocaltime=$EXTRA_OBJS/fakelocaltime.o
@@ -32,11 +34,11 @@ swift_start=$EXTRA_OBJS/swift_start.o
 swift_end=$EXTRA_OBJS/swift_end.o
 
 swiftrt=$SWIFTWASM_SDK/lib/swift_static/wasm/wasm32/swiftrt.o
-crt1=$WASI_SDK/share/sysroot/lib/wasm32-wasi/crt1.o
+crt1=$sysroot/lib/wasm32-wasi/crt1.o
 clangrt=$WASI_SDK/lib/clang/8.0.0/lib/wasi/libclang_rt.builtins-wasm32.a
 
 # Linker search paths
-wasi_libs=$WASI_SDK/share/sysroot/lib/wasm32-wasi
+wasi_libs=$sysroot/lib/wasm32-wasi
 swift_libs=$SWIFTWASM_SDK/lib/swift_static/wasm
 
 
@@ -68,7 +70,8 @@ $WASM_LD \
   $fakepthread $fakelocaltime \
   -L $wasi_libs \
   -L $ICU_LIB -L $swift_libs \
-  -lc -lc++ -lc++abi -lswiftImageInspectionShared \
+  -lc -lc++ -lc++abi \
+  -lswiftImageInspectionShared \
   -lswiftCore \
   -lswiftSwiftOnoneSupport \
   -licuuc -licudata \
