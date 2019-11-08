@@ -21,6 +21,24 @@
 
 # ======================================================================================================
 
+usage_exit() {
+        echo "Usage: $0 [-o] input output" 1>&2
+        exit 1
+}
+while getopts oh OPT
+do
+    case $OPT in
+        o)  OPTIMIZE=1
+            ;;
+        h)  usage_exit
+            ;;
+        \?) usage_exit
+            ;;
+    esac
+done
+
+shift $((OPTIND - 1))
+
 input=$1
 object_file=$input.o
 output=${2:-"a"}
@@ -58,14 +76,17 @@ done
 # Compile from swift file to object file
 
 echo "Compiling..."
-$SWIFTC -target wasm32-unknown-unknown-wasm -O -g -sdk $sysroot -o $object_file -c $input
+if [ -n "$OPTIMIZE" ]; then
+  $SWIFTC -target wasm32-unknown-unknown-wasm -O -sdk $sysroot -o $object_file -c $input
+else
+  $SWIFTC -target wasm32-unknown-unknown-wasm -g -sdk $sysroot -o $object_file -c $input
+fi
 
 # Link them
 echo "Linking..."
 $WASM_LD \
   -o $output \
   $object_file \
-  $swift_start $swift_end \
   $swiftrt $crt1 $clangrt \
   $fakepthread $fakelocaltime \
   -L $wasi_libs \
@@ -79,6 +100,8 @@ $WASM_LD \
   --no-gc-sections \
   --no-threads
 
-echo "Stripping..."
-$WASM_STRIP $output
+if [ -n "$OPTIMIZE" ]; then
+  echo "Stripping..."
+  $WASM_STRIP $output
+fi
 
