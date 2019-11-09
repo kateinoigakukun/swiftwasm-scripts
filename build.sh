@@ -14,8 +14,6 @@
 
 : ${EXTRA_OBJS:?}
 # EXTRA_OBJS should be a directory which contains below
-# - swift_start.o
-# - swift_end.o
 # - fakelocaltime.o
 # - fakepthread.o
 
@@ -48,8 +46,6 @@ sysroot=$WASI_SDK/share/sysroot
 # Linker input files
 fakepthread=$EXTRA_OBJS/fakepthread.o
 fakelocaltime=$EXTRA_OBJS/fakelocaltime.o
-swift_start=$EXTRA_OBJS/swift_start.o
-swift_end=$EXTRA_OBJS/swift_end.o
 
 swiftrt=$SWIFTWASM_SDK/lib/swift_static/wasm/wasm32/swiftrt.o
 crt1=$sysroot/lib/wasm32-wasi/crt1.o
@@ -64,7 +60,7 @@ swift_libs=$SWIFTWASM_SDK/lib/swift_static/wasm
 
 echo "Validating inputs..."
 [ ! -f $input ] && { echo "Input file $input not found"; exit 1; } 
-for extra_obj in swift_start.o swift_end.o fakelocaltime.o fakepthread.o
+for extra_obj in fakelocaltime.o fakepthread.o
 do
   if [ ! -f $EXTRA_OBJS/$extra_obj ]; then
     echo "Extra object file $EXTRA_OBJS/$extra_obj not found"
